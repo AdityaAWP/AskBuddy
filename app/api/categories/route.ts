@@ -1,17 +1,22 @@
 // app/api/categories/route.ts
-import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { NextResponse } from "next/server";
+import { GetCategories, CreateCategory } from "@/actions/categories";
 
-export async function GET() {
-  const { data, error } = await supabase.from('categories').select('*')
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+export async function GET(request: Request) {
+  try {
+    const categories = await GetCategories();
+    return NextResponse.json(categories);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 }
 
-export async function POST(req: Request) {
-  const body = await req.json()
-  const { name } = body
-  const { data, error } = await supabase.from('categories').insert({ name }).select()
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data[0])
+export async function POST(request: Request) {
+  try {
+    const { name } = await request.json();
+    const category = await CreateCategory(name);
+    return NextResponse.json(category);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 }
