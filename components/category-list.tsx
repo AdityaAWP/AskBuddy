@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { Check, ChevronDown, X } from "lucide-react";
@@ -13,7 +11,7 @@ import {
 } from "@/components/ui/popover";
 
 interface Category {
-  id: number;
+  id: string;  // UUID
   name: string;
 }
 
@@ -35,7 +33,6 @@ export default function CategoryList({
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategory, setNewCategory] = useState("");
 
-  // Fetch categories from the API on mount
   useEffect(() => {
     async function fetchCategories() {
       try {
@@ -99,23 +96,26 @@ export default function CategoryList({
   const ActiveFilterBadges = () => {
     return filters.categories.length > 0 ? (
       <div className="flex flex-wrap gap-2 mt-3">
-        {filters.categories.map((cat, i) => (
-          <Badge
-            key={`cat-${cat}-${i}`}
-            variant="outline"
-            className="flex items-center gap-1 px-2 py-1"
-          >
-            {cat}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-4 w-4 p-0 ml-1"
-              onClick={() => toggleFilter("categories", cat)}
+        {filters.categories.map((catId, i) => {
+          const category = categories.find((c) => c.id === catId);
+          return (
+            <Badge
+              key={`cat-${catId}-${i}`}
+              variant="outline"
+              className="flex items-center gap-1 px-2 py-1"
             >
-              <X className="h-3 w-3" />
-            </Button>
-          </Badge>
-        ))}
+              {category?.name || catId}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-4 w-4 p-0 ml-1"
+                onClick={() => toggleFilter("categories", catId)}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </Badge>
+          );
+        })}
         <Button
           variant="ghost"
           size="sm"
@@ -148,13 +148,13 @@ export default function CategoryList({
                     size="sm"
                     className={cn(
                       "justify-start w-full font-normal",
-                      filters.categories.includes(cat.name) && "font-medium"
+                      filters.categories.includes(cat.id) && "font-medium"
                     )}
-                    onClick={() => toggleFilter("categories", cat.name)}
+                    onClick={() => toggleFilter("categories", cat.id)}
                   >
                     <div className="flex items-center justify-between w-full">
                       {cat.name}
-                      {filters.categories.includes(cat.name) && (
+                      {filters.categories.includes(cat.id) && (
                         <Check className="h-4 w-4" />
                       )}
                     </div>
@@ -165,7 +165,7 @@ export default function CategoryList({
           </PopoverContent>
         </Popover>
       </div>
-      
+
       {/* Active Filter Badges */}
       <ActiveFilterBadges />
 
