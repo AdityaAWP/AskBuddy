@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Nickname is required' }, { status: 400 })
   }
 
-  const inviteCode = nanoid(8)
+  const inviteCode = nanoid(8)  // Generate an 8-character invite code
 
   // 1. Buat Room
   const { data: room, error: roomError } = await supabase
@@ -29,9 +29,9 @@ export async function POST(req: Request) {
     .from('room_users')
     .insert([{
       room_id: room.id,
-      guest_id: nickname,          // kamu pakai `text` sebagai guest_id
+      guest_id: nickname,
       is_guest: true,
-      is_host: true
+      is_host: true,
     }])
     .select()
     .single()

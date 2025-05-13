@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 export default function RoomPage() {
-  const { roomId } = useParams()
+  const { roomId } = useParams() // This is the invite_code for the room
   const [room, setRoom] = useState<any>(null)
   const [guests, setGuests] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -16,7 +16,7 @@ export default function RoomPage() {
     const { data: roomData, error: roomError } = await supabase
       .from('rooms')
       .select('*')
-      .eq('id', roomId)
+      .eq('invite_code', roomId) // Use invite_code here instead of id
       .single()
 
     if (roomError || !roomData) {
@@ -30,7 +30,7 @@ export default function RoomPage() {
     const { data: guestsData, error: guestError } = await supabase
       .from('room_users')
       .select('*')
-      .eq('room_id', roomId)
+      .eq('room_id', roomData.id) // Make sure room_id is correct here
 
     if (!guestError && guestsData) {
       setGuests(guestsData)
@@ -41,11 +41,11 @@ export default function RoomPage() {
 
   useEffect(() => {
     fetchRoomData()
-  }, [])
+  }, [roomId]) // Fetch data again if roomId (inviteCode) changes
 
   const handleCopyLink = () => {
     if (!room?.invite_code) return
-    const link = `${window.location.origin}/rooms/${room.invite_code}`
+    const link = `${window.location.origin}/inviteCode/${room.invite_code}`
     navigator.clipboard.writeText(link)
     alert('Invite link copied to clipboard!')
   }
